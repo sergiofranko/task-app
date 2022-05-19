@@ -1,0 +1,26 @@
+<div class="container">
+    <h1 class="newTask">Ingresar Nueva Tarea</h1>
+    <form [formGroup]="formTasks" (submit)="save()">
+        <div class="mb-3">
+            <label for="title" class="form-label" >Título</label>
+            <input type="text" class="form-control" placeholder="Ingresa el título" formControlName="title" required autofocus>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea class="form-control" placeholder="Ingresa la descripción" formControlName="description" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="executionDate" class="form-label">Fecha estimada de ejecución</label>
+            <input type="date" class="form-control" formControlName="executionDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="idEmployee" class="form-label">Asignatario</label>
+            <select name="idEmployee" class="form-select" formControlName="idEmployee">
+                <option *ngFor="let employee of employees" value="{{employee.id}}">{{employee.name}}</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" [disabled]="formTasks.invalid" type="submit">Guardar</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,34 @@
+<div class="container">
+    <h1 class="newTask">Editar Tarea</h1>
+    <form [formGroup]="formTasks" (ngSubmit)="update()">
+        <div class="mb-3">
+            <label for="title" class="form-label" >Título</label>
+            <input type="text" class="form-control" placeholder="Ingresa el título" formControlName="title" required autofocus>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea class="form-control" placeholder="Ingresa la descripción" formControlName="description" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="executionDate" class="form-label">Fecha estimada de ejecución</label>
+            <input type="date" min="{{todayDate}}" class="form-control" formControlName="executionDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label" >Estado</label>
+            <select name="status" class="form-select" formControlName="status">
+                <option value="{{task.status}}">{{task.status}}</option>
+                <option *ngFor="let status of states" value="{{status}}">{{status}}</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="idEmployee" class="form-label">Asignatario</label>
+            <select name="idEmployee" class="form-select" formControlName="idEmployee">
+                <option value="{{employee.id}}">{{employee.name}}</option>
+                <option *ngFor="let empl of employees" value="{{empl.id}}">{{empl.name}}</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Editar</button>
+        </div>
+    </form>
+</div>

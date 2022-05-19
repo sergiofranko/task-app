@@ -1,0 +1,5 @@
+td>button,
+td>a>button {
+    width: 80%;
+    margin: 3px;
+}

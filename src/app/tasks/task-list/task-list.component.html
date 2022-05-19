@@ -1,0 +1,35 @@
+<div class="container">
+    <h2>Lista de tareas</h2>
+    <button class="btn btn-success" [routerLink]="['/','create']">Crear tarea</button>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Título</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Fecha de ejecución</th>
+            <th scope="col">Días de retraso</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Asignatario</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasks, let i=index">
+            <th scope="row">{{task.id}}</th>
+            <td>{{task.title}}</td>
+            <td>{{task.description}}</td>
+            <td>{{exDates[i]}}</td>
+            <td>{{daysLate[i]}}</td>
+            <td>{{task.status}}</td>
+            <td>{{employees[i]?.name}}</td>
+            <td class="actions">
+              <a href="#editComponent"><button class="btn btn-info" (click)="edit(task)">Editar</button></a>
+              <button class="btn btn-danger" (click)="delete(task)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+    <app-task-edit id="editComponent" *ngIf="showEdit"></app-task-edit>
+</div>
