@@ -13,7 +13,14 @@ import { UserService } from 'src/app/service/user/user.service';
 })
 export class TaskCreateComponent implements OnInit {
   public formTasks!: FormGroup;
-  public employees: User[] = [];
+  public employees: User[] = [{
+    id: 1,
+    name: "Sergio Franco"
+  },
+  {
+    id: 2,
+    name: "Esteban Agudelo"
+  }];
   public states: string[] = ["Nueva", "Activa", "Cerrada"];
 
   constructor(private formBuilder: FormBuilder,
