@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { Router } from '@angular/router';
 import { Task } from 'src/app/model/Task';
 import { User } from 'src/app/model/User';
+import { AlertService } from 'src/app/service/alert.service';
 import { TasksService } from 'src/app/service/task/tasks.service';
 import { UserService } from 'src/app/service/user/user.service';
 
@@ -27,6 +28,7 @@ export class TaskEditComponent implements OnInit {
   constructor(private taskService: TasksService,
               private userService: UserService,
               private formBuilder: FormBuilder,
+              private alertService: AlertService,
               private router: Router) { }
 
   ngOnInit(): void {
@@ -43,10 +45,7 @@ export class TaskEditComponent implements OnInit {
     )
 
     this.taskService.trigger.subscribe(task => {
-      console.log("Recibiendo: ", task);
       this.task = task.data;
-      console.log(formatDate(new Date(this.task.executionDate), 'yyyy-MM-dd', 'en'));
-      
       this.userService.getById(this.task.idEmployee).subscribe(
         response => {
           if (response && response.success) {
@@ -77,17 +76,18 @@ export class TaskEditComponent implements OnInit {
   }
 
   loadForm() {
+    let date: Date = new Date(this.task.executionDate);
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset())
     this.formTasks.setValue({
       title: this.task.title,
       description: this.task.description,
-      executionDate: formatDate(new Date(this.task.executionDate), 'yyyy-MM-dd', 'en'),
+      executionDate: formatDate(date, 'yyyy-MM-dd', 'en'),
       status: this.task.status,
       idEmployee: this.task.idEmployee
     })
   }
 
   update(){
-    console.log("formmulario: ", this.formTasks.value);
     this.task = {
       id: this.task.id,
       title: this.formTasks.value.title,
@@ -96,17 +96,19 @@ export class TaskEditComponent implements OnInit {
       status: this.formTasks.value.status,
       idEmployee: this.formTasks.value.idEmployee,
     };
-    console.log("tarea: ", this.task);
     this.taskService.update(this.task)
       .subscribe(response=> {
         if (response && response.success) {
-        console.log("Response: ", response.data);
-        console.log("Message: ", response.message);
-        this.createForm();
-        this.taskService.hiddenEdit.emit({hidden: false});
-      }
+          this.createForm();
+          this.alertService.alert('success', '¡Éxito!', response.message);
+          setTimeout(() => {
+            this.taskService.hiddenEdit.emit({hidden: false}),
+            10000
+          })
+          this.router.navigateByUrl("/")
+        }
     }, error => {
-      console.error(error);
+      this.alertService.alert('error', '¡Error!', error.message);
     })
   }
 

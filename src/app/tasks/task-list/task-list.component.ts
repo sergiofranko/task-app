@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Task } from 'src/app/model/Task';
 import { User } from 'src/app/model/User';
+import { AlertService } from 'src/app/service/alert.service';
 import { TasksService } from 'src/app/service/task/tasks.service';
 import { UserService } from 'src/app/service/user/user.service';
 
@@ -20,7 +21,8 @@ export class TaskListComponent implements OnInit {
   exDates: string[] = [];
 
   constructor(private taskService: TasksService,
-              private userService: UserService) { }
+              private userService: UserService,
+              private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.taskService.getAll().subscribe(
@@ -28,9 +30,11 @@ export class TaskListComponent implements OnInit {
         if (response && response.success) {
           this.tasks = response.data as Task[];
           this.tasks.forEach(task => {
-            this.exDates.push(formatDate(task.executionDate, 'dd-MM-yyyy', 'en'));
             let execDate = new Date(task.executionDate);
+            execDate.setMinutes(execDate.getMinutes() + execDate.getTimezoneOffset());
+            this.exDates.push(formatDate(execDate, 'dd-MM-yyyy', 'en'));
             let nowDate = new Date(Date.now());
+            nowDate.setMinutes(nowDate.getMinutes() + nowDate.getTimezoneOffset());
             this.userService.getById(task.idEmployee).subscribe(
               response => {
                 let user: User = response.data as User;
@@ -78,8 +82,13 @@ export class TaskListComponent implements OnInit {
     this.taskService.delete(task.id)
     .subscribe(response => {
       if (response && response.success) {
+        this.alertService.alert('success', '¡Éxito!', response.message);
         console.log(response.message);
-        this.ngOnInit();
+        setTimeout(() => {
+          this.ngOnInit(),
+          50000
+        })
+        
       }
     })
   }

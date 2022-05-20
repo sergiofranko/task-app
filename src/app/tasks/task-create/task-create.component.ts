@@ -1,8 +1,10 @@
+import { formatDate } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Task } from 'src/app/model/Task';
 import { User } from 'src/app/model/User';
+import { AlertService } from 'src/app/service/alert.service';
 import { TasksService } from 'src/app/service/task/tasks.service';
 import { UserService } from 'src/app/service/user/user.service';
 
@@ -13,7 +15,7 @@ import { UserService } from 'src/app/service/user/user.service';
 })
 export class TaskCreateComponent implements OnInit {
   public formTasks!: FormGroup;
-  public employees: User[] = [{
+  public employeesToCreate: User[] = [{
     id: 1,
     name: "Sergio Franco"
   },
@@ -21,15 +23,18 @@ export class TaskCreateComponent implements OnInit {
     id: 2,
     name: "Esteban Agudelo"
   }];
+  public employees: User[] = [];
   public states: string[] = ["Nueva", "Activa", "Cerrada"];
 
   constructor(private formBuilder: FormBuilder,
     private taskService: TasksService,
     private userService: UserService,
+    private alertService: AlertService,
     private router: Router) { }
 
   ngOnInit(): void {
 
+    this.createEmployees();
     this.loadEmployees();
 
     this.formTasks = this.formBuilder.group({
@@ -44,35 +49,55 @@ export class TaskCreateComponent implements OnInit {
     });
   }
 
+  createEmployees() {
+    this.employeesToCreate.forEach(employee => {
+      this.userService.save(employee).subscribe(
+        response => {
+          if (response && response.success) {
+            this.employees.push(response.data as User)
+          }
+        }, error => {
+          this.alertService.alert('error', 'Error', error.message)
+        }
+      )
+    })
+    
+  }
+
   loadEmployees() {
     this.userService.getAll().subscribe(
       response => {
         if (response && response.success) {
           this.employees = response.data as User[];
-          console.log("Empleados: ", this.employees);
-          
         }
       }, error => {
-        console.error(error);
+        this.alertService.alert('error', 'Error!', error.message);
       }
     )
   }
 
   save(): any {
     const form = this.formTasks.value;
+    let date: Date = new Date(form.executionDate);
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    let dateString = formatDate(date, 'yyyy-MM-dd', 'en');
+    
     const task: Task = {
       id: 0,
       title: form.title,
       description: form.description,
-      executionDate: form.executionDate,
+      executionDate: dateString,
       idEmployee: form.idEmployee,
       status: this.states[0]
     };
+
+    console.log(form);
+    
+
     this.taskService.save(task)
       .subscribe(response => {
         if (response && response.success) {
-          console.log("Response: ", response.data);
-          console.log("Message: ", response.message);
+          this.alertService.alert('success', '¡Éxito!', response.message);
           this.router.navigateByUrl("/");
         }
       }, error => {

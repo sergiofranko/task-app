@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ApiResponse } from 'src/app/model/ApiResponse';
+import { User } from 'src/app/model/User';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -24,6 +25,16 @@ export class UserService {
 
   getById(id: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(`${environment.baseUrl}/users/${id}`).pipe(
+      map(response => {
+        return response as ApiResponse;
+      })
+    ).pipe(
+      catchError(this.errorHandler)
+    )
+  }
+
+  save(user: User): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${environment.baseUrl}/users`, user).pipe(
       map(response => {
         return response as ApiResponse;
       })
